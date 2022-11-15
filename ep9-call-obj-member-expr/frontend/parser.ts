@@ -2,14 +2,17 @@
 import {
   AssignmentExpr,
   BinaryExpr,
+  BlockStatement,
   CallExpr,
   Expr,
+  FunctionDeclaration,
   Identifier,
   MemberExpr,
   NumericLiteral,
   ObjectLiteral,
   Program,
   Property,
+  ReturnExpr,
   Stmt,
   VarDeclaration,
 } from "./ast.ts";
@@ -80,6 +83,10 @@ export default class Parser {
       case TokenType.Let:
       case TokenType.Const:
         return this.parse_var_declaration();
+      case TokenType.Function:
+        return this.parse_function_declaration();
+      case TokenType.Return:
+        return this.parse_return_expression();
       default:
         return this.parse_expr();
     }
@@ -125,6 +132,65 @@ export default class Parser {
     );
 
     return declaration;
+  }
+
+  private parse_function_declaration(): Stmt {
+    this.expect(
+      TokenType.Function,
+      "Function declarations must begin with 'fn' keyword."
+    )
+    const identifier = this.eat().value
+    const params = this.parse_function_params()
+    const body = this.parse_block_statement()
+      return {
+        kind: "FunctionDeclaration",
+        identifier,
+        params,
+        body
+      } as FunctionDeclaration
+  }
+
+  private parse_function_params(): string[] {
+    this.expect(
+      TokenType.OpenParen,
+      "Function parameter set must begin with an opening paren: '('"
+    )
+    if (this.at().type === TokenType.CloseParen) {
+      this.eat()
+      return [];
+    }
+    const firstParam = this.expect(TokenType.Identifier, "Function parameters must be identifiers").value
+    const params = [firstParam]
+    while (this.at().type == TokenType.Comma && this.at().type !== TokenType.CloseParen) {
+      this.eat()
+      const next = this.expect(TokenType.Identifier, "Function parameters must be identifiers").value
+      params.push(next);
+    }
+    this.expect(
+      TokenType.CloseParen,
+      "Function parameter set must begin with an opening paren: '('"
+    )
+    return params;
+  }
+
+  private parse_block_statement(): Stmt {
+    this.expect(TokenType.OpenBrace, "Block statements must begin with an opening brace: '{'")
+    const statements = []
+    while (this.not_eof() && this.at().type != TokenType.CloseBrace) {
+      statements.push(this.parse_stmt())
+    }
+    this.expect(TokenType.CloseBrace, "Block statements must end with a closing brace: }")
+    return { kind: "BlockStatement", statements} as BlockStatement
+  }
+
+  private parse_return_expression(): Expr {
+    this.eat() //return
+    const expr = this.parse_expr();
+    this.expect(TokenType.Semicolon, "Return statements must end with a Semicolon: ;")
+    return {
+      kind: "ReturnExpr",
+      value: expr
+    } as ReturnExpr
   }
 
   // Handle expressions

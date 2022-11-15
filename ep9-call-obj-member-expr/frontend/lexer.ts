@@ -12,6 +12,8 @@ export enum TokenType {
   // Keywords
   Let,
   Const,
+  Function,
+  Return,
 
   // Grouping * Operators
   BinaryOperator,
@@ -35,6 +37,8 @@ export enum TokenType {
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
   const: TokenType.Const,
+  fn: TokenType.Function,
+  return: TokenType.Return,
 };
 
 // Reoresents a single token from the source-code.

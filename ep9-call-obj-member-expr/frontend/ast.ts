@@ -9,10 +9,13 @@ export type NodeType =
   // STATEMENTS
   | "Program"
   | "VarDeclaration"
+  | "BlockStatement"
+  | "FunctionDeclaration"
   // EXPRESSIONS
   | "AssignmentExpr"
   | "MemberExpr"
   | "CallExpr"
+  | "ReturnExpr"
   // Literals
   | "Property"
   | "ObjectLiteral"
@@ -41,6 +44,18 @@ export interface VarDeclaration extends Stmt {
   constant: boolean;
   identifier: string;
   value?: Expr;
+}
+
+export interface BlockStatement extends Stmt {
+  kind: "BlockStatement";
+  statements: Stmt[];
+}
+
+export interface FunctionDeclaration extends Stmt {
+  kind: "FunctionDeclaration";
+  identifier: string;
+  params: string[];
+  body: BlockStatement;
 }
 
 /**  Expressions will result in a value at runtime unlike Statements */
@@ -75,6 +90,11 @@ export interface MemberExpr extends Expr {
   object: Expr;
   property: Expr;
   computed: boolean;
+}
+
+export interface ReturnExpr extends Expr {
+  kind: "ReturnExpr";
+  value: Expr;
 }
 
 // LITERAL / PRIMARY EXPRESSION TYPES

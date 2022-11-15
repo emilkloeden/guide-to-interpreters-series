@@ -2,6 +2,7 @@ import { NumberVal, RuntimeVal } from "./values.ts";
 import {
   AssignmentExpr,
   BinaryExpr,
+  FunctionDeclaration,
   Identifier,
   NumericLiteral,
   ObjectLiteral,
@@ -10,7 +11,7 @@ import {
   VarDeclaration,
 } from "../frontend/ast.ts";
 import Environment from "./environment.ts";
-import { eval_program, eval_var_declaration } from "./eval/statements.ts";
+import { eval_function_declaration, eval_program, eval_var_declaration } from "./eval/statements.ts";
 import {
   eval_assignment,
   eval_binary_expr,
@@ -38,6 +39,8 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
     // Handle statements
     case "VarDeclaration":
       return eval_var_declaration(astNode as VarDeclaration, env);
+    case "FunctionDeclaration":
+      return eval_function_declaration(astNode as FunctionDeclaration, env);
     // Handle unimplimented ast types as error.
     default:
       console.error(
